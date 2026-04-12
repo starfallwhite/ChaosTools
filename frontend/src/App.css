@@ -1,0 +1,211 @@
+/**
+ * 应用样式
+ */
+
+.main-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+}
+
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.header p {
+  margin: 5px 0 0;
+  opacity: 0.8;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  gap: 20px;
+}
+
+.left-panel {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.section-title {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  color: #333;
+  border-bottom: 2px solid #1f77b4;
+  padding-bottom: 5px;
+}
+
+.model-selector-container,
+.parameter-panel,
+.plot-view,
+.chat-panel {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.model-selector {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.param-group {
+  margin-bottom: 10px;
+}
+
+.param-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 3px;
+  color: #555;
+}
+
+.param-desc {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.param-input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.run-button {
+  padding: 12px 20px;
+  background: #1f77b4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.run-button:hover:not(:disabled) {
+  background: #155a8a;
+}
+
+.run-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.plot-empty {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+  color: #666;
+}
+
+.data-summary {
+  margin-top: 15px;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.data-summary p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.lyapunov-result {
+  padding: 20px;
+  font-size: 1.2rem;
+}
+
+.interpretation {
+  color: #666;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.chat-panel {
+  min-height: 200px;
+}
+
+.chat-messages {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.chat-message {
+  padding: 5px 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.chat-message.ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.chat-message.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.chat-input {
+  width: calc(100% - 70px);
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.chat-panel .run-button {
+  width: 60px;
+  padding: 8px;
+  margin-left: 5px;
+}
+
+.loading {
+  color: #666;
+  padding: 10px;
+}
+
+.footer {
+  text-align: center;
+  padding: 10px;
+  background: #e0e0e0;
+  color: #666;
+}
