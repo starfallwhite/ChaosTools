@@ -1,0 +1,65 @@
+你需要创建一个用于“混沌系统数值计算”的 Python 模块，作为后续模型系统的底层计算引擎。
+
+要求如下：
+
+【1】项目结构
+创建如下文件结构：
+
+compute_engine/
+    __init__.py
+    base_solver.py
+    dde_solver.py
+    utils.py
+
+【2】设计目标
+该模块用于：
+- 执行延迟微分方程（DDE）数值求解
+- 支持 RK4 方法
+- 支持 delay（后续支持插值）
+- 后续可扩展 numba 加速
+
+【3】base_solver.py
+定义抽象基类：
+
+class BaseSolver:
+    def solve(self, params: dict) -> dict:
+        raise NotImplementedError
+
+【4】dde_solver.py
+定义类：
+
+class DDESolver(BaseSolver):
+
+    def __init__(self):
+        pass
+
+    def solve(self, params: dict) -> dict:
+        """
+        params 包含：
+        - 初始值
+        - 步长 h
+        - 总步数 N
+        - delay T1
+        - 模型参数
+        """
+
+        # 这里只写结构，不实现具体算法
+        return {
+            "t": [],
+            "x": []
+        }
+
+【5】utils.py
+预留工具函数接口：
+
+def delay_lookup(buffer, index):
+    """
+    用于获取 delay 值（后续支持插值）
+    """
+    pass
+
+【6】要求
+- 不实现具体数值算法
+- 保持代码清晰
+- 每个类写 docstring
+- 不要引入复杂依赖

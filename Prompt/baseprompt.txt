@@ -1,0 +1,294 @@
+🔷 总体架构
+Frontend (React + Plotly)
+        ↓
+FastAPI (API Layer)
+        ↓
+MCP Orchestrator (Workflow Engine)
+        ↓
+├── Model Layer (混沌系统)
+└── Skill Layer (分析工具)
+        ↓
+Compute Engine (数值求解核心)
+🔷 核心数据流
+用户选择模型 + 参数
+        ↓
+调用 MCP
+        ↓
+Model 生成 x(t)
+        ↓
+Skill 分析（FFT / Lyapunov）
+        ↓
+返回统一格式数据
+        ↓
+前端可视化
+🧩 二、系统“接口规范”（最关键）
+
+这一部分你可以理解为：
+
+整个项目的“通信协议”
+✅ 1️⃣ 数据协议（必须统一）
+时序数据
+{
+  "type": "timeseries",
+  "data": {
+    "t": [],
+    "x": [],
+    "y": []
+  }
+}
+频谱数据
+{
+  "type": "spectrum",
+  "data": {
+    "f": [],
+    "Pxx": []
+  }
+}
+Lyapunov
+{
+  "type": "lyapunov",
+  "data": {
+    "lambda_max": 0.0
+  }
+}
+✅ 2️⃣ Model 接口（统一入口）
+class ChaosModel:
+    name: str
+    param_schema: dict
+
+    def simulate(self, params: dict) -> dict:
+        pass
+✅ 3️⃣ Skill 接口
+class Skill:
+    name: str
+    input_type: str
+    output_type: str
+
+    def run(self, data: dict, params: dict) -> dict:
+        pass
+✅ 4️⃣ MCP Workflow协议
+{
+  "workflow": [
+    {
+      "type": "model",
+      "name": "electrooptic_feedback",
+      "params": {}
+    },
+    {
+      "type": "skill",
+      "name": "fft"
+    }
+  ]
+}
+🧱 三、项目目录结构（必须统一）
+chaos-platform/
+│
+├── backend/
+│   ├── api/
+│   │   └── routes.py
+│   │
+│   ├── mcp/
+│   │   └── executor.py
+│   │
+│   ├── models/
+│   │   ├── base.py
+│   │   ├── electrooptic.py
+│   │   └── registry.py
+│   │
+│   ├── skills/
+│   │   ├── base.py
+│   │   ├── fft.py
+│   │   ├── lyapunov.py
+│   │   └── registry.py
+│   │
+│   ├── compute_engine/
+│   │   ├── dde_solver.py
+│   │   └── utils.py
+│   │
+│   └── core/
+│       └── data_protocol.py
+│
+└── frontend/
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   └── api/
+
+
+
+    一、你现在的架构本质（重新建模）
+
+你描述的流程，本质是：
+
+用户（自然语言）
+        ↓
+LLM（意图理解 + 规划）
+        ↓
+MCP（工具协议层）
+        ↓
+Skill（具体计算工具）
+        ↓
+Compute Engine（数值计算）
+        ↓
+返回结果 → LLM → 用户
+🔥 关键变化（非常重要）
+
+你现在的 MCP 不是普通 orchestrator，而是：
+
+MCP = LLM Tool Interface Layer（工具协议层）
+二、重新定义 MCP 和 Skill（必须统一）
+✅ MCP（Model Context Protocol）
+✔ 正确定义
+MCP = 标准化工具调用协议 + 工具注册 + 调用路由
+✔ 职责
+1️⃣ 向 LLM 暴露工具（tool schema）
+2️⃣ 接收 LLM 的 tool call
+3️⃣ 调度对应 skill
+4️⃣ 返回结构化结果
+❌ 不再负责
+✘ 不负责复杂 workflow DAG（由 LLM 决策）
+✘ 不负责业务逻辑
+✅ Skill（核心计算单元）
+✔ 定义
+Skill = 可被 LLM 调用的原子工具
+✔ 示例（你系统中的）
+chaos_simulate      → 模型仿真
+fft_analysis        → 频谱分析
+lyapunov_calculate  → 李雅普诺夫指数
+phase_reconstruct   → 相空间
+三、最终系统结构（修正版）
+
+这才是你这个项目的最终形态：
+
+Frontend（聊天UI + 可视化）
+        ↓
+LLM（推理 + tool planning）
+        ↓
+MCP Server（工具协议层）
+        ↓
+Skill Layer（工具集合）
+        ↓
+Model Layer（混沌系统）
+        ↓
+Compute Engine（数值核心）
+四、核心交互流程（标准流程）
+🧠 示例：用户说
+“帮我分析一个光电反馈混沌系统”
+🔁 执行流程
+① LLM解析意图
+{
+  "intent": "chaos_analysis",
+  "model": "electrooptic_feedback"
+}
+② LLM调用第一个 Tool
+{
+  "tool": "chaos_simulate",
+  "params": {
+    "model": "electrooptic_feedback",
+    "beta": 2.0,
+    "phi": 0.5
+    ...
+  }
+}
+③ MCP执行
+MCP → 找到 chaos_simulate → 调用 Model → 返回 x(t)
+④ LLM继续推理
+“需要频谱分析 + Lyapunov”
+⑤ 连续调用
+fft_analysis(x)
+lyapunov_calculate(x)
+⑥ 最终输出
+LLM总结 + 前端展示图像
+五、你这个设计的优势（非常强）
+✅ 1. 真正的“智能实验系统”
+用户不需要写代码
+→ 用自然语言做混沌实验
+✅ 2. 自动 workflow（比传统 MCP 强）
+
+传统：
+
+写死 pipeline
+
+你现在：
+
+LLM 动态规划分析流程
+✅ 3. 极强扩展性
+
+新增能力只需要：
+
+新增 skill
+六、必须补充的关键设计（否则会崩）
+⚠️ 1. Tool Schema（最关键）
+
+LLM 是否能正确调用工具，取决于这个：
+
+✅ chaos_simulate schema
+{
+  "name": "chaos_simulate",
+  "description": "Simulate a chaotic system and return time series",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "string",
+        "enum": ["electrooptic_feedback"]
+      },
+      "params": {
+        "type": "object"
+      }
+    },
+    "required": ["model", "params"]
+  }
+}
+
+👉 这一步非常关键，否则：
+
+LLM会乱调用参数（常见坑）
+⚠️ 2. 数据必须“LLM友好”
+
+LLM不能处理：
+
+巨大数组（1e6长度）
+✅ 解决方案
+{
+  "summary": {
+    "mean": ...,
+    "std": ...
+  },
+  "data_preview": [...100个点...],
+  "full_data_ref": "cache_id"
+}
+⚠️ 3. 状态管理（关键）
+
+LLM是“无状态”的，但你的系统不是。
+
+必须支持：
+session memory
+
+例如：
+
+用户 → simulate
+下一步 → fft（用的是上一步结果）
+
+👉 MCP需要支持：
+
+context_id
+七、你系统的最终定位（非常重要）
+
+你现在构建的是：
+
+Chaos Copilot（混沌研究助手）
+
+不仅是工具，而是：
+
+AI辅助科研系统
+八、下一步（非常关键）
+
+现在可以进入 真正的 Prompt工程阶段（基于新架构）
+
+🔥 第一批 prompt（我建议顺序）
+🧩 Prompt 1：MCP Server（Tool注册 + 调用）
+🧩 Prompt 2：chaos_simulate（核心tool）
+🧩 Prompt 3：fft_analysis
+🧩 Prompt 4：lyapunov_calculate
+🧩 Prompt 5：session/context管理

@@ -1,0 +1,77 @@
+在已有 MCP 系统中，实现第一个工具 chaos_simulate。
+
+【目标】
+实现一个 tool：
+- 调用混沌模型
+- 返回时序数据
+- 保存到 session
+
+----------------------------------------
+【1】创建文件：
+
+backend/skills/chaos_simulate.py
+
+----------------------------------------
+【2】实现函数：
+
+def chaos_simulate(params: dict, session_id: str):
+
+    """
+    params:
+    {
+        "model": "electrooptic_feedback",
+        "model_params": {...}
+    }
+    """
+
+    from backend.models.registry import MODEL_REGISTRY
+    from backend.mcp.session import session_manager
+
+    model_name = params["model"]
+    model_params = params["model_params"]
+
+    model = MODEL_REGISTRY.get(model_name)
+
+    if model is None:
+        return {"error": "model not found"}
+
+    result = model.simulate(model_params)
+
+    # 存入session（关键）
+    session_manager.set(session_id, "last_result", result)
+
+    return result
+
+----------------------------------------
+【3】注册 tool
+
+在 backend/mcp/registry.py 中：
+
+from backend.skills.chaos_simulate import chaos_simulate
+
+tool_registry.register("chaos_simulate", chaos_simulate)
+
+----------------------------------------
+【4】注册 schema
+
+在 schema.py 中加入：
+
+register_schema({
+    "name": "chaos_simulate",
+    "description": "Simulate a chaotic system",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "model": {"type": "string"},
+            "model_params": {"type": "object"}
+        },
+        "required": ["model", "model_params"]
+    }
+})
+
+----------------------------------------
+【要求】
+
+- 必须使用 session 保存结果（用于后续分析）
+- 返回统一数据结构
+- 不做复杂优化

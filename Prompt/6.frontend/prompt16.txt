@@ -1,0 +1,24 @@
+在 MainPage 中实现“运行仿真”按钮。
+
+----------------------------------------
+【逻辑】
+
+点击按钮：
+
+callMCP({
+    tool: "chaos_simulate",
+    params: {
+        model: selectedModel,
+        model_params: params
+    }
+})
+
+----------------------------------------
+【返回】
+
+保存 result 到 state
+
+----------------------------------------
+【传给 PlotView】
+
+用于绘图

@@ -1,0 +1,153 @@
+你需要实现一个完整的 MCP（Model Context Protocol）服务器，用于支持大模型调用工具（tools）执行混沌系统分析任务。
+
+【目标】
+实现一个支持：
+- tool注册
+- tool调用
+- session管理
+的 MCP 服务
+
+【项目路径】
+backend/mcp/
+
+创建以下文件：
+
+server.py
+registry.py
+executor.py
+schema.py
+session.py
+types.py
+
+----------------------------------------
+【1】types.py
+
+定义基础数据结构：
+
+class ToolRequest:
+    def __init__(self, tool: str, params: dict, session_id: str = None):
+        self.tool = tool
+        self.params = params
+        self.session_id = session_id
+
+class ToolResponse:
+    def __init__(self, status: str, data: dict, session_id: str):
+        self.status = status
+        self.data = data
+        self.session_id = session_id
+
+----------------------------------------
+【2】registry.py
+
+实现 ToolRegistry：
+
+class ToolRegistry:
+    def __init__(self):
+        self.tools = {}
+
+    def register(self, name: str, func):
+        self.tools[name] = func
+
+    def get(self, name: str):
+        return self.tools.get(name)
+
+创建全局实例：
+
+tool_registry = ToolRegistry()
+
+----------------------------------------
+【3】session.py（关键）
+
+实现简单 session 管理：
+
+class SessionManager:
+    def __init__(self):
+        self.sessions = {}
+
+    def create_session(self):
+        import uuid
+        sid = str(uuid.uuid4())
+        self.sessions[sid] = {}
+        return sid
+
+    def get(self, sid):
+        return self.sessions.get(sid, {})
+
+    def set(self, sid, key, value):
+        self.sessions[sid][key] = value
+
+创建全局实例：
+
+session_manager = SessionManager()
+
+----------------------------------------
+【4】executor.py
+
+实现核心执行逻辑：
+
+from .registry import tool_registry
+from .session import session_manager
+from .types import ToolResponse
+
+def execute_tool(request):
+    tool_func = tool_registry.get(request.tool)
+
+    if tool_func is None:
+        return ToolResponse("error", {"message": "tool not found"}, request.session_id)
+
+    result = tool_func(request.params, request.session_id)
+
+    return ToolResponse("success", result, request.session_id)
+
+----------------------------------------
+【5】schema.py
+
+定义工具 schema（用于未来给 LLM）：
+
+TOOL_SCHEMAS = []
+
+def register_schema(schema: dict):
+    TOOL_SCHEMAS.append(schema)
+
+def get_all_schemas():
+    return TOOL_SCHEMAS
+
+----------------------------------------
+【6】server.py
+
+实现 MCP Server：
+
+from .executor import execute_tool
+from .types import ToolRequest
+from .session import session_manager
+
+class MCPServer:
+
+    def handle_request(self, req_json: dict):
+        tool = req_json.get("tool")
+        params = req_json.get("params", {})
+        session_id = req_json.get("session_id")
+
+        if session_id is None:
+            session_id = session_manager.create_session()
+
+        request = ToolRequest(tool, params, session_id)
+        response = execute_tool(request)
+
+        return {
+            "status": response.status,
+            "data": response.data,
+            "session_id": response.session_id
+        }
+
+创建实例：
+
+mcp_server = MCPServer()
+
+----------------------------------------
+【要求】
+
+- 代码清晰
+- 每个模块职责单一
+- 不依赖外部框架（后续再接 FastAPI）
+- 保持可扩展性

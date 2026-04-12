@@ -1,0 +1,56 @@
+实现电光反馈混沌模型（electrooptic_feedback）。
+
+----------------------------------------
+【1】创建文件
+
+backend/models/electrooptic.py
+
+----------------------------------------
+【2】实现模型
+
+from backend.models.base import ChaosModel
+from backend.compute_engine.dde_solver import DDESolver
+
+
+class ElectroOpticModel(ChaosModel):
+
+    name = "electrooptic_feedback"
+
+    param_schema = {
+        "T1": {"type": "float", "default": 1.0},
+        "xin": {"type": "array", "default": [0.1, 0.1]},
+        "h": {"type": "float", "default": 0.01},
+        "N": {"type": "int", "default": 10000},
+        "beta": {"type": "float", "default": 2.0},
+        "phi": {"type": "float", "default": 0.5},
+        "tau": {"type": "float", "default": 1.0},
+        "xita": {"type": "float", "default": 1.0}
+    }
+
+    def __init__(self):
+        self.solver = DDESolver()
+
+    def simulate(self, params: dict) -> dict:
+
+        result = self.solver.solve(params)
+
+        return {
+            "type": "timeseries",
+            "data": result
+        }
+
+----------------------------------------
+【3】注册模型
+
+在 registry.py 或 __init__ 中：
+
+from backend.models.registry import register_model
+
+register_model(ElectroOpticModel())
+
+----------------------------------------
+【要求】
+
+- 调用 compute_engine
+- 不实现数值算法
+- 保持结构清晰

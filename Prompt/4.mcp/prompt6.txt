@@ -1,0 +1,39 @@
+实现 Model Layer 的基础接口，用于支持多混沌系统。
+
+----------------------------------------
+【1】创建文件
+
+backend/models/base.py
+
+----------------------------------------
+【2】实现基类
+
+class ChaosModel:
+    """
+    混沌系统模型基类
+    """
+
+    name = "base_model"
+    param_schema = {}
+
+    def simulate(self, params: dict) -> dict:
+        """
+        返回统一数据格式：
+        {
+            "type": "timeseries",
+            "data": {
+                "t": [],
+                "x": [],
+                "y": []
+            }
+        }
+        """
+        raise NotImplementedError
+
+----------------------------------------
+【3】要求
+
+- 所有模型必须继承该类
+- 必须定义 name
+- 必须定义 param_schema
+- 必须实现 simulate

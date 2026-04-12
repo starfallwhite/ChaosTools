@@ -1,0 +1,42 @@
+实现 FastAPI 接口层，将 MCP Server 暴露为 HTTP API。
+
+----------------------------------------
+【1】创建文件
+
+backend/api/routes.py
+
+----------------------------------------
+【2】实现接口
+
+from fastapi import FastAPI
+from backend.mcp.server import mcp_server
+from backend.models.api import get_all_model_schemas
+
+app = FastAPI()
+
+----------------------------------------
+【3】MCP调用接口
+
+@app.post("/mcp")
+def call_mcp(req: dict):
+    return mcp_server.handle_request(req)
+
+----------------------------------------
+【4】模型schema接口
+
+@app.get("/models")
+def get_models():
+    return get_all_model_schemas()
+
+----------------------------------------
+【5】健康检查
+
+@app.get("/")
+def root():
+    return {"status": "ok"}
+
+----------------------------------------
+【要求】
+
+- 不做复杂验证（后续再加）
+- 保持简单

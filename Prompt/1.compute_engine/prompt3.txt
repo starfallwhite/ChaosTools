@@ -1,0 +1,38 @@
+对 compute_engine/dde_solver.py 中的 RK4 求解器进行性能优化。
+
+要求如下：
+
+【1】使用 numba
+- 使用 @njit 加速核心循环
+- 将计算逻辑提取为独立函数
+
+【2】改造结构
+
+将 solve 拆成：
+
+def _rk4_core(...):
+    # numba 加速函数
+
+def solve(...):
+    # Python封装
+
+【3】注意事项
+
+- numba 不支持 Python对象
+- 所有变量必须是 numpy array 或基本类型
+- 不要在 njit 中使用 dict
+
+【4】优化目标
+
+- 能支持 N > 1e6
+- 避免 Python for-loop 成为瓶颈
+
+【5】保持接口不变
+
+输出仍为：
+
+{
+    "t": ...,
+    "x": ...,
+    "y": ...
+}

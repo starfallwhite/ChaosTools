@@ -1,0 +1,18 @@
+# 混沌系统仿真平台依赖
+
+# 核心依赖
+numpy>=1.24.0
+
+# MCP SDK (Model Context Protocol)
+mcp>=0.9.0
+
+# 性能优化
+numba>=0.58.0  # 用于 compute_engine 加速
+
+# API 服务
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# 可选：可视化（前端需要）
+# plotly>=5.18.0
+# react-series-animation  # React 前端动画库

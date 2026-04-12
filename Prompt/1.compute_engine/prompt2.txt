@@ -1,0 +1,56 @@
+在已有 compute_engine/dde_solver.py 中，实现一个基于 RK4 的延迟微分方程求解器。
+
+要求如下：
+
+【1】目标
+实现一个函数：
+
+def solve(self, params: dict) -> dict
+
+用于求解如下结构的系统：
+
+dx/dt = f(x(t), x(t - T1), params)
+
+【2】参数说明
+params 包含：
+
+- xin: 初始状态 [x0, y0]
+- h: 步长
+- N: 仿真步数
+- T1: delay
+- beta, phi, tau, xita: 系统参数
+
+【3】数值方法
+使用四阶 Runge-Kutta（RK4）
+
+【4】delay处理
+实现最基础版本：
+
+- n_delay = int(T1 / h)
+- 若 j <= n_delay:
+    使用随机值初始化 delay（与原 MATLAB 保持一致）
+- 若 j > n_delay:
+    使用 x[j - n_delay]
+
+【5】实现内容
+完整实现以下逻辑：
+
+- 初始化 x, y, time 数组
+- 循环 N 次
+- 计算 delay
+- RK4 四个阶段
+- 更新 x_0, y_0
+- 保存结果
+
+【6】输出格式
+
+return {
+    "t": t_array,
+    "x": x_array,
+    "y": y_array
+}
+
+【7】要求
+- 使用 numpy
+- 保持与 MATLAB 逻辑一致
+- 不要优化（先保证正确性）

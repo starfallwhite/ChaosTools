@@ -1,0 +1,26 @@
+实现前端 API 调用封装。
+
+----------------------------------------
+【文件】
+
+src/api/client.ts
+
+----------------------------------------
+【实现】
+
+export async function callMCP(payload: any) {
+    const res = await fetch("http://localhost:8000/mcp", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    });
+
+    return res.json();
+}
+
+export async function getModels() {
+    const res = await fetch("http://localhost:8000/models");
+    return res.json();
+}

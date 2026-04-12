@@ -1,0 +1,81 @@
+实现一个 FFT 分析工具 fft_analysis，作为 MCP 的一个 skill。
+
+----------------------------------------
+【1】创建文件
+
+backend/skills/fft_analysis.py
+
+----------------------------------------
+【2】实现函数
+
+def fft_analysis(params: dict, session_id: str):
+
+    """
+    从 session 中读取最近一次仿真结果，计算频谱
+    """
+
+    import numpy as np
+    from backend.mcp.session import session_manager
+
+    data = session_manager.get(session_id).get("last_result")
+
+    if data is None:
+        return {"error": "no data found in session"}
+
+    t = np.array(data["data"]["t"])
+    x = np.array(data["data"]["x"])
+
+    # 采样间隔
+    dt = t[1] - t[0]
+
+    # FFT
+    X = np.fft.fft(x)
+    freqs = np.fft.fftfreq(len(x), dt)
+
+    # 只取正频率
+    mask = freqs > 0
+    freqs = freqs[mask]
+    spectrum = np.abs(X[mask])
+
+    result = {
+        "type": "spectrum",
+        "data": {
+            "f": freqs.tolist(),
+            "Pxx": spectrum.tolist()
+        }
+    }
+
+    # 存回 session
+    session_manager.set(session_id, "last_result", result)
+
+    return result
+
+----------------------------------------
+【3】注册 tool
+
+在 registry.py：
+
+from backend.skills.fft_analysis import fft_analysis
+tool_registry.register("fft_analysis", fft_analysis)
+
+----------------------------------------
+【4】注册 schema
+
+在 schema.py：
+
+register_schema({
+    "name": "fft_analysis",
+    "description": "Perform FFT on time series",
+    "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+    }
+})
+
+----------------------------------------
+【要求】
+
+- 使用 numpy FFT
+- 输入必须来自 session
+- 输出必须符合统一数据格式

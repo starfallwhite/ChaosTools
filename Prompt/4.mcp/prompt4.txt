@@ -1,0 +1,86 @@
+实现 Lyapunov 指数计算工具 lyapunov_calculate。
+
+----------------------------------------
+【1】创建文件
+
+backend/skills/lyapunov.py
+
+----------------------------------------
+【2】实现函数
+
+def lyapunov_calculate(params: dict, session_id: str):
+
+    """
+    基于时间序列估计最大 Lyapunov 指数
+    使用简单的邻近轨道发散方法
+    """
+
+    import numpy as np
+    from backend.mcp.session import session_manager
+
+    data = session_manager.get(session_id).get("last_result")
+
+    if data is None:
+        return {"error": "no data found"}
+
+    x = np.array(data["data"]["x"])
+    N = len(x)
+
+    eps = 1e-8
+    max_iter = min(1000, N // 10)
+
+    d0 = eps
+    d = d0
+
+    lyap_sum = 0.0
+    count = 0
+
+    for i in range(max_iter):
+        if i + 1 >= N:
+            break
+
+        dx = abs(x[i+1] - x[i]) + eps
+
+        lyap_sum += np.log(abs(dx / d))
+        d = dx
+        count += 1
+
+    if count == 0:
+        return {"error": "insufficient data"}
+
+    lambda_max = lyap_sum / count
+
+    result = {
+        "type": "lyapunov",
+        "data": {
+            "lambda_max": float(lambda_max)
+        }
+    }
+
+    session_manager.set(session_id, "last_result", result)
+
+    return result
+
+----------------------------------------
+【3】注册 tool
+
+tool_registry.register("lyapunov_calculate", lyapunov_calculate)
+
+----------------------------------------
+【4】注册 schema
+
+register_schema({
+    "name": "lyapunov_calculate",
+    "description": "Compute Lyapunov exponent",
+    "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+    }
+})
+
+----------------------------------------
+【说明】
+
+- 这是工程近似版本（不是严格谱）
+- 后续可替换为更精确算法

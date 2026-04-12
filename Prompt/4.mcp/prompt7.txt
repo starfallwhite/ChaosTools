@@ -1,0 +1,26 @@
+实现模型注册系统，使得新模型可以动态接入。
+
+----------------------------------------
+【1】创建文件
+
+backend/models/registry.py
+
+----------------------------------------
+【2】实现注册器
+
+MODEL_REGISTRY = {}
+
+def register_model(model):
+    MODEL_REGISTRY[model.name] = model
+
+def get_model(name: str):
+    return MODEL_REGISTRY.get(name)
+
+def list_models():
+    return list(MODEL_REGISTRY.keys())
+
+----------------------------------------
+【3】要求
+
+- 支持动态扩展
+- 后续模型只需调用 register_model 即可

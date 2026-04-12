@@ -1,0 +1,44 @@
+在 compute_engine 中增强 delay 处理机制，支持非整数 delay（科研级精度）。
+
+要求如下：
+
+【1】问题背景
+
+当前 delay 使用：
+
+x[j - n_delay]
+
+但实际 T1 / h 不一定为整数。
+
+【2】实现目标
+
+实现线性插值：
+
+设：
+idx = (t - T1) / h
+
+i = floor(idx)
+alpha = idx - i
+
+x_delay = (1 - alpha) * x[i] + alpha * x[i+1]
+
+【3】实现方式
+
+在 utils.py 中实现：
+
+def delay_linear_interpolation(x_array, idx):
+    ...
+
+【4】在 solver 中替换：
+
+原 delay 获取方式 → 插值方式
+
+【5】边界处理
+
+- idx < 0 → 使用初始历史函数（可用随机或常数）
+- idx+1 超界 → 安全处理
+
+【6】要求
+
+- 保持高性能
+- 不影响 numba（必要时写两个版本）

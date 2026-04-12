@@ -1,0 +1,35 @@
+实现一个接口，用于获取所有模型及其参数 schema。
+
+----------------------------------------
+【1】创建文件
+
+backend/models/api.py
+
+----------------------------------------
+【2】实现函数
+
+from backend.models.registry import MODEL_REGISTRY
+
+def get_all_model_schemas():
+
+    result = {}
+
+    for name, model in MODEL_REGISTRY.items():
+        result[name] = model.param_schema
+
+    return result
+
+----------------------------------------
+【返回格式】
+
+{
+  "electrooptic_feedback": {
+    "T1": {...},
+    "beta": {...}
+  }
+}
+
+----------------------------------------
+【作用】
+
+该接口用于前端动态生成参数UI    

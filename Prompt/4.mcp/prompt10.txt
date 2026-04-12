@@ -1,0 +1,39 @@
+在 MCP 中新增一个 tool：list_models
+
+----------------------------------------
+【1】创建 skill
+
+backend/skills/list_models.py
+
+----------------------------------------
+【2】实现
+
+from backend.models.registry import list_models
+
+def list_models_tool(params, session_id):
+
+    models = list_models()
+
+    return {
+        "type": "model_list",
+        "data": {
+            "models": models
+        }
+    }
+
+----------------------------------------
+【3】注册
+
+tool_registry.register("list_models", list_models_tool)
+
+----------------------------------------
+【4】schema
+
+register_schema({
+    "name": "list_models",
+    "description": "List all available chaos models",
+    "parameters": {
+        "type": "object",
+        "properties": {}
+    }
+})

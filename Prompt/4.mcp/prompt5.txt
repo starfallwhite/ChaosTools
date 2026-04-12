@@ -1,0 +1,70 @@
+实现相空间重构工具 phase_reconstruct。
+
+----------------------------------------
+【1】创建文件
+
+backend/skills/phase_space.py
+
+----------------------------------------
+【2】实现函数
+
+def phase_reconstruct(params: dict, session_id: str):
+
+    """
+    相空间重构（delay embedding）
+    """
+
+    import numpy as np
+    from backend.mcp.session import session_manager
+
+    tau = params.get("tau", 10)
+    dim = params.get("dim", 2)
+
+    data = session_manager.get(session_id).get("last_result")
+
+    if data is None:
+        return {"error": "no data"}
+
+    x = np.array(data["data"]["x"])
+    N = len(x)
+
+    M = N - (dim - 1) * tau
+
+    if M <= 0:
+        return {"error": "invalid parameters"}
+
+    embedded = np.zeros((M, dim))
+
+    for i in range(dim):
+        embedded[:, i] = x[i * tau : i * tau + M]
+
+    result = {
+        "type": "phase_space",
+        "data": {
+            "points": embedded.tolist()
+        }
+    }
+
+    session_manager.set(session_id, "last_result", result)
+
+    return result
+
+----------------------------------------
+【3】注册 tool
+
+tool_registry.register("phase_reconstruct", phase_reconstruct)
+
+----------------------------------------
+【4】schema
+
+register_schema({
+    "name": "phase_reconstruct",
+    "description": "Reconstruct phase space",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "tau": {"type": "integer"},
+            "dim": {"type": "integer"}
+        }
+    }
+})
