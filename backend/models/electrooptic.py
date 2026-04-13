@@ -35,10 +35,10 @@ class ElectroopticFeedbackModel(ChaosModel):
 
     # 混沌生成的推荐参数
     param_schema: Dict[str, Any] = {
-        "xin": {
-            "type": "array",
-            "description": "初始状态 [x0, y0]",
-            "default": [1, 0]
+        "x0": {
+            "type": "float",
+            "description": "初始状态 x0（y0 固定为 0）",
+            "default": 1.0
         },
         "h": {
             "type": "float",
@@ -143,10 +143,10 @@ class ElectroopticFeedbackWithMesModel(ChaosModel):
 
     # 混沌生成的推荐参数
     param_schema: Dict[str, Any] = {
-        "xin": {
-            "type": "array",
-            "description": "初始状态 [x0, y0]",
-            "default": [1, 0]
+        "x0": {
+            "type": "float",
+            "description": "初始状态 x0（y0 固定为 0）",
+            "default": 1.0
         },
         "h": {
             "type": "float",

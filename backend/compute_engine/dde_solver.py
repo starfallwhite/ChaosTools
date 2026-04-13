@@ -44,20 +44,20 @@ class DDESolver(BaseSolver):
 
         Args:
             params: 求解参数，包含：
-                - xin: 初始状态 [x0, y0]
+                - x0: 初始状态 x（y 固定为 0）
                 - h: 步长
                 - N: 仿真步数
                 - T1: delay 延迟时间
                 - beta, phi, tau, xita: 系统参数
 
         Returns:
-            Dict: 时序数据包，格式为 TimeseriesPacket
+            Dict: 时序数据包，格式为 TimeseriesPacket（只包含 t 和 x）
         """
         # 参数提取
-        xin = params.get("xin", [0.1, 0.1])
-        h = params.get("h", 0.01)
-        N = params.get("N", 1000)
-        T1 = params.get("T1", 1.0)
+        x0 = params.get("x0", 1.0)
+        h = params.get("h", 1e-11)
+        N = params.get("N", 300000)
+        T1 = params.get("T1", 15e-9)
 
         # 系统参数（命名与 MATLAB 一致）
         beta = params.get("beta", 4.0)
@@ -65,14 +65,13 @@ class DDESolver(BaseSolver):
         tou = params.get("tau", 25e-12)      # MATLAB: tou (25 ps)
         xita = params.get("xita", 5e-6)      # MATLAB: xita (5 us)
 
-        # 初始化数组
+        # 初始化数组（只存储 x，y 是中间计算量）
         t_array = np.zeros(N)
         x_array = np.zeros(N)
-        y_array = np.zeros(N)
 
         # 初始状态
-        x_0 = xin[0]
-        y_0 = xin[1]
+        x_0 = x0
+        y_0 = 0.0  # y 是 x 的积分，初始值为 0
 
         # delay 步数
         n_delay = int(np.floor(T1 / h))
@@ -109,16 +108,14 @@ class DDESolver(BaseSolver):
 
             # 更新状态
             x_0 = x_0 + h * (k11 + 2*k12 + 2*k13 + k14) / 6
-            y_0 = y_0 + h * (k21 + 2*k22 + 2*k23 + k24) / 6
+            y_0 = y_0 + h * (k21 + 2*k22 + 2*k23 + k24) / 6  # y 继续计算但不输出
 
-            # 保存结果
+            # 只保存 x
             x_array[j] = x_0
-            y_array[j] = y_0
 
         return create_timeseries(
             t_array.tolist(),
-            x_array.tolist(),
-            y_array.tolist()
+            x_array.tolist()
         )
 
 
@@ -143,7 +140,7 @@ class DDESolverWithMes(BaseSolver):
 
         Args:
             params: 求解参数，包含：
-                - xin: 初始状态 [x0, y0]
+                - x0: 初始状态 x（y 固定为 0）
                 - h: 步长
                 - N: 仿真步数
                 - T1: delay 延迟时间
@@ -152,13 +149,13 @@ class DDESolverWithMes(BaseSolver):
                 - mes_rate: 比特率 (bps)
 
         Returns:
-            Dict: 时序数据包
+            Dict: 时序数据包（只包含 t 和 x）
         """
         # 参数提取
-        xin = params.get("xin", [0.1, 0.1])
-        h = params.get("h", 0.01)
-        N = params.get("N", 1000)
-        T1 = params.get("T1", 1.0)
+        x0 = params.get("x0", 1.0)
+        h = params.get("h", 1e-11)
+        N = params.get("N", 300000)
+        T1 = params.get("T1", 15e-9)
 
         # 系统参数
         beta = params.get("beta", 4.0)
@@ -170,13 +167,13 @@ class DDESolverWithMes(BaseSolver):
         mes_bits = params.get("mes_bits", [1, 0, 1, 1, 0])
         mes_rate = params.get("mes_rate", 1e6)  # 1 Mbps
 
-        # 初始化数组
+        # 初始化数组（只存储 x）
         t_array = np.zeros(N)
         x_array = np.zeros(N)
 
         # 初始状态
-        x_0 = xin[0]
-        y_0 = xin[1]
+        x_0 = x0
+        y_0 = 0.0  # y 是 x 的积分，初始值为 0
 
         # delay 步数
         n_delay = int(np.floor(T1 / h))
@@ -218,12 +215,11 @@ class DDESolverWithMes(BaseSolver):
 
             # 更新状态
             x_0 = x_0 + h * (k11 + 2*k12 + 2*k13 + k14) / 6
-            y_0 = y_0 + h * (k21 + 2*k22 + 2*k23 + k24) / 6
+            y_0 = y_0 + h * (k21 + 2*k22 + 2*k23 + k24) / 6  # y 继续计算但不输出
 
             x_array[j] = x_0
 
         return create_timeseries(
             t_array.tolist(),
-            x_array.tolist(),
-            [0.0] * N  # y 不单独输出
+            x_array.tolist()
         )

@@ -90,7 +90,6 @@ def make_llm_friendly(data: Dict[str, Any]) -> Dict[str, Any]:
     inner_data = data.get("data", {})
     t = np.array(inner_data.get("t", []))
     x = np.array(inner_data.get("x", []))
-    y = np.array(inner_data.get("y", []))
 
     length = len(t)
 
@@ -100,16 +99,15 @@ def make_llm_friendly(data: Dict[str, Any]) -> Dict[str, Any]:
         "t_range": [float(t[0]), float(t[-1])] if length > 0 else [0, 0],
         "x_mean": float(np.mean(x)) if length > 0 else 0,
         "x_std": float(np.std(x)) if length > 0 else 0,
-        "y_mean": float(np.mean(y)) if length > 0 else 0,
-        "y_std": float(np.std(y)) if length > 0 else 0
+        "x_max": float(np.max(x)) if length > 0 else 0,
+        "x_min": float(np.min(x)) if length > 0 else 0
     }
 
     # 数据预览（前100个点）
     preview_size = min(100, length)
     data_preview = {
         "t": t[:preview_size].tolist(),
-        "x": x[:preview_size].tolist(),
-        "y": y[:preview_size].tolist()
+        "x": x[:preview_size].tolist()
     }
 
     # 完整数据引用

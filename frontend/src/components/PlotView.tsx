@@ -35,7 +35,6 @@ function PlotView({ data }: PlotViewProps) {
     const innerData = data.data_preview || data.data || {}
     const t = innerData.t || []
     const x = innerData.x || []
-    const y = innerData.y || []
 
     return (
       <div className="plot-view">
@@ -50,21 +49,13 @@ function PlotView({ data }: PlotViewProps) {
               name: 'x(t)',
               line: { color: '#1f77b4' },
             },
-            {
-              x: t,
-              y: y,
-              type: 'scatter',
-              mode: 'lines',
-              name: 'y(t)',
-              line: { color: '#ff7f0e' },
-            },
           ]}
           layout={{
             width: 600,
             height: 400,
             title: 'Time Series Plot',
             xaxis: { title: 'Time' },
-            yaxis: { title: 'Value' },
+            yaxis: { title: 'x' },
           }}
         />
         {data.summary && (
@@ -72,6 +63,8 @@ function PlotView({ data }: PlotViewProps) {
             <p>Length: {data.summary.length}</p>
             <p>x_mean: {data.summary.x_mean?.toFixed(4)}</p>
             <p>x_std: {data.summary.x_std?.toFixed(4)}</p>
+            <p>x_max: {data.summary.x_max?.toFixed(4)}</p>
+            <p>x_min: {data.summary.x_min?.toFixed(4)}</p>
           </div>
         )}
       </div>

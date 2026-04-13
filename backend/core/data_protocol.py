@@ -13,7 +13,6 @@ class TimeseriesData(TypedDict):
     """时序数据格式"""
     t: List[float]      # 时间数组
     x: List[float]      # 状态变量 x
-    y: List[float]      # 状态变量 y
 
 
 class SpectrumData(TypedDict):
@@ -77,7 +76,7 @@ def validate_timeseries(data: Dict) -> bool:
     if data.get("type") != "timeseries":
         return False
     inner = data.get("data", {})
-    required_keys = ["t", "x", "y"]
+    required_keys = ["t", "x"]
     return all(key in inner for key in required_keys)
 
 
@@ -114,11 +113,11 @@ def validate_data(data: Dict) -> bool:
 
 # ==================== 工厂函数 ====================
 
-def create_timeseries(t: List[float], x: List[float], y: List[float]) -> TimeseriesPacket:
-    """创建时序数据包"""
+def create_timeseries(t: List[float], x: List[float]) -> TimeseriesPacket:
+    """创建时序数据包（只包含 t 和 x）"""
     return {
         "type": "timeseries",
-        "data": {"t": t, "x": x, "y": y}
+        "data": {"t": t, "x": x}
     }
 
 
