@@ -5,7 +5,8 @@
  * 根据 Prompt/6.frontend/prompt14.txt 规范实现。
  */
 
-const API_BASE = 'http://localhost:8000'
+// 使用 Vite 代理路径，开发时代理到 localhost:8000
+const API_BASE = '/api'
 
 /**
  * 调用 MCP 工具
