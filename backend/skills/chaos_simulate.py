@@ -39,7 +39,7 @@ def chaos_simulate(params: Dict[str, Any], session_id: str) -> Dict[str, Any]:
         Dict: 仿真结果（LLM友好格式）
             {
                 "type": "timeseries",
-                "data": {"t": [...], "x": [...], "y": [...]},
+                "data": {"t": [...], "x": [...]},
                 "summary": {"mean": ..., "std": ..., "length": ...},
                 "data_preview": [...100个点...],
                 "full_data_ref": "session_id"
@@ -62,6 +62,8 @@ def chaos_simulate(params: Dict[str, Any], session_id: str) -> Dict[str, Any]:
     # 保存原始数据供后续分析工具使用
     session_manager.set(session_id, "last_result", result)
     session_manager.set(session_id, "original_timeseries", result)  # 保留原始时序
+    # 保存仿真参数供相空间重构等工具使用
+    session_manager.set(session_id, "simulation_params", model_params)
 
     # 转换为 LLM友好格式
     llm_friendly_result = make_llm_friendly(result)

@@ -111,8 +111,13 @@ function PlotView({ data }: PlotViewProps) {
 
   // 相空间绘图
   if (dataType === 'phase_space') {
-    const points = data.data_preview || data.data?.points || []
-    const pointsArray = Array.isArray(points) ? points : []
+    const innerData = data.data_preview || data.data || {}
+    const xDelay = innerData.x_delay || []
+    const xCurrent = innerData.x_current || []
+
+    // 确保 x_delay 和 x_current 是数组
+    const xDelayArray = Array.isArray(xDelay) ? xDelay : []
+    const xCurrentArray = Array.isArray(xCurrent) ? xCurrent : []
 
     return (
       <div className="plot-view">
@@ -120,27 +125,27 @@ function PlotView({ data }: PlotViewProps) {
         <Plot
           data={[
             {
-              x: pointsArray.map((p: number[]) => p[0]),
-              y: pointsArray.map((p: number[]) => p[1] || 0),
+              x: xDelayArray,
+              y: xCurrentArray,
               type: 'scatter',
               mode: 'markers',
               name: 'Phase',
-              marker: { color: '#d62728', size: 3 },
+              marker: { color: '#d62728', size: 2 },
             },
           ]}
           layout={{
             width: 600,
             height: 400,
-            title: 'Phase Space Reconstruction',
-            xaxis: { title: 'x(t)' },
-            yaxis: { title: 'x(t+tau)' },
+            title: 'Phase Space (x(t-T1) vs x(t))',
+            xaxis: { title: 'x(t-T1)' },
+            yaxis: { title: 'x(t)' },
           }}
         />
         {data.summary && (
           <div className="data-summary">
             <p>Points: {data.summary.num_points}</p>
-            <p>Dim: {data.summary.embedding_dim}</p>
-            <p>Tau: {data.summary.delay_tau}</p>
+            <p>Delay points (n): {data.summary.n_delay}</p>
+            <p>T1: {data.summary.T1_ns?.toFixed(2)} ns</p>
           </div>
         )}
       </div>

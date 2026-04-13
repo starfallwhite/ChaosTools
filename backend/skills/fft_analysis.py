@@ -16,7 +16,7 @@ def fft_analysis(params: Dict[str, Any], session_id: str) -> Dict[str, Any]:
     """
     执行 FFT 频谱分析
 
-    从 session 中读取最近一次仿真结果，计算频谱。
+    从 session 中读取原始时序数据，计算频谱。
 
     Args:
         params: 工具参数（可选）
@@ -32,12 +32,12 @@ def fft_analysis(params: Dict[str, Any], session_id: str) -> Dict[str, Any]:
                 }
             }
     """
-    # 从 session 获取最近结果
+    # 从 session 获取原始时序数据（关键：使用 original_timeseries）
     session_data = session_manager.get(session_id)
-    data = session_data.get("last_result")
+    data = session_data.get("original_timeseries")
 
     if data is None:
-        return {"error": "no data found in session"}
+        return {"error": "no timeseries data found in session. Run chaos_simulate first."}
 
     # 获取时序数据（兼容 LLM友好格式和原始格式）
     raw_data = data.get("_raw_data", data.get("data", {}))
