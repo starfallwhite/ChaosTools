@@ -13,6 +13,7 @@
     dx/dt = f(x(t), x(t - T1), params)
 """
 
+import math
 from typing import Dict, Any
 import numpy as np
 
@@ -59,10 +60,10 @@ class DDESolver(BaseSolver):
         T1 = params.get("T1", 1.0)
 
         # 系统参数（命名与 MATLAB 一致）
-        beta = params.get("beta", 2.0)
-        phi = params.get("phi", 0.5)
-        tou = params.get("tau", 1.0)      # MATLAB: tou
-        xita = params.get("xita", 1.0)    # MATLAB: xita
+        beta = params.get("beta", 4.0)
+        phi = params.get("phi", math.pi / 4)
+        tou = params.get("tau", 25e-12)      # MATLAB: tou (25 ps)
+        xita = params.get("xita", 5e-6)      # MATLAB: xita (5 us)
 
         # 初始化数组
         t_array = np.zeros(N)
@@ -160,10 +161,10 @@ class DDESolverWithMes(BaseSolver):
         T1 = params.get("T1", 1.0)
 
         # 系统参数
-        beta = params.get("beta", 2.0)
-        phi = params.get("phi", 0.5)
-        tou = 25e-12   # MATLAB 固定值
-        xita = 5e-6    # MATLAB 固定值
+        beta = params.get("beta", 4.0)
+        phi = params.get("phi", math.pi / 4)
+        tou = params.get("tau", 25e-12)   # 从参数获取
+        xita = params.get("xita", 5e-6)   # 从参数获取
 
         # 信息调制参数
         mes_bits = params.get("mes_bits", [1, 0, 1, 1, 0])

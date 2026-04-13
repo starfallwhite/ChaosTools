@@ -8,6 +8,7 @@
     dy/dt = x
 """
 
+import math
 from typing import Dict, Any
 import numpy as np
 
@@ -32,46 +33,47 @@ class ElectroopticFeedbackModel(ChaosModel):
     name: str = "electrooptic_feedback"
     description: str = "光电反馈混沌模型（延迟微分方程）"
 
+    # 混沌生成的推荐参数
     param_schema: Dict[str, Any] = {
         "xin": {
             "type": "array",
             "description": "初始状态 [x0, y0]",
-            "default": [0.1, 0.1]
+            "default": [1, 0]
         },
         "h": {
             "type": "float",
-            "description": "步长（秒）",
-            "default": 1e-9  # 1 ns
+            "description": "步长（秒），推荐 10ps = 1e-11",
+            "default": 1e-11  # 10 ps
         },
         "N": {
             "type": "int",
             "description": "仿真步数",
-            "default": 10000
+            "default": 300000  # 3e5 (避免内存溢出，实际3e6需要分批)
         },
         "T1": {
             "type": "float",
-            "description": "延迟时间（秒）",
-            "default": 1e-6  # 1 us
+            "description": "延迟时间（秒），纳秒级别",
+            "default": 15e-9  # 15 ns
         },
         "beta": {
             "type": "float",
             "description": "反馈强度",
-            "default": 2.0
+            "default": 4.0
         },
         "phi": {
             "type": "float",
-            "description": "相位偏移（rad）",
-            "default": 0.5
+            "description": "相位偏移（rad），pi/4 ≈ 0.7854",
+            "default": math.pi / 4  # pi/4
         },
         "tau": {
             "type": "float",
             "description": "时间常数 tou（秒）",
-            "default": 25e-12  # 25 ps（与 MATLAB 一致）
+            "default": 25e-12  # 25 ps
         },
         "xita": {
             "type": "float",
             "description": "时间常数 xita（秒）",
-            "default": 5e-6  # 5 us（与 MATLAB 一致）
+            "default": 5e-6  # 5 us
         }
     }
 
@@ -139,36 +141,47 @@ class ElectroopticFeedbackWithMesModel(ChaosModel):
     name: str = "electrooptic_feedback_mes"
     description: str = "带信息耦合的光电反馈混沌模型"
 
+    # 混沌生成的推荐参数
     param_schema: Dict[str, Any] = {
         "xin": {
             "type": "array",
             "description": "初始状态 [x0, y0]",
-            "default": [0.1, 0.1]
+            "default": [1, 0]
         },
         "h": {
             "type": "float",
-            "description": "步长（秒）",
-            "default": 1e-9
+            "description": "步长（秒），推荐 10ps = 1e-11",
+            "default": 1e-11  # 10 ps
         },
         "N": {
             "type": "int",
             "description": "仿真步数",
-            "default": 10000
+            "default": 300000  # 3e5
         },
         "T1": {
             "type": "float",
-            "description": "延迟时间（秒）",
-            "default": 1e-6
+            "description": "延迟时间（秒），纳秒级别",
+            "default": 15e-9  # 15 ns
         },
         "beta": {
             "type": "float",
             "description": "反馈强度",
-            "default": 2.0
+            "default": 4.0
         },
         "phi": {
             "type": "float",
-            "description": "相位偏移（rad）",
-            "default": 0.5
+            "description": "相位偏移（rad），pi/4 ≈ 0.7854",
+            "default": math.pi / 4  # pi/4
+        },
+        "tau": {
+            "type": "float",
+            "description": "时间常数 tou（秒）",
+            "default": 25e-12  # 25 ps
+        },
+        "xita": {
+            "type": "float",
+            "description": "时间常数 xita（秒）",
+            "default": 5e-6  # 5 us
         },
         "mes_bits": {
             "type": "array",
