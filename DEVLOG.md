@@ -607,6 +607,7 @@ All solver tests passed!
 | 问题 | 优先级 | 状态 |
 |------|--------|------|
 | 求解器数值溢出 | 高 | 🔄 待优化参数 |
+| 相空间延迟参数灵活性 | 高 | 🔄 待修改 |
 | 性能基准测试 | 中 | 🔄 待开始 |
 | Lyapunov 精确算法 | 低 | 🔄 可选 |
 | 前端数据导出 | 低 | 🔄 可选功能 |
@@ -679,6 +680,50 @@ D:\Project\ChaosSimulation\ChaosTools\backend\compute_engine\dde_solver.py:98: R
 
 ---
 
+### 5. 相空间延迟参数灵活性 (高优先级) - 待修改
+
+**问题描述：**
+当前相空间重构功能内置使用仿真参数中的延迟时间 T1 来计算延迟点数，这对电光延迟系统（如 electrooptic_feedback）是合理的，但对于没有内置延迟的混沌系统，相空间重构时应该允许用户指定延迟时间参数。
+
+**当前实现：**
+```python
+# phase_space.py 当前逻辑
+sim_params = session_data.get("simulation_params", {})
+T1 = sim_params.get("T1", 15e-9)  # 从仿真参数获取
+h = sim_params.get("h", 1e-11)
+n_delay = int(np.floor(T1 / h))  # 固定使用 T1/h
+```
+
+**问题场景：**
+1. 对于有延迟的系统（如电光反馈）：T1 是系统物理参数，使用 T1 作为相空间重构延迟是合理的
+2. 对于无延迟的系统（如 Lorenz、Rossler）：没有 T1 参数，需要用户指定重构延迟时间
+3. 用户可能希望使用不同的延迟时间来观察相空间结构变化
+
+**期望功能：**
+- 前端支持输入延迟时间参数（单位：ns，量级在纳秒范围）
+- 根据用户指定的延迟时间和仿真步长 h 计算延迟点数：`n_delay = floor(delay_ns * 1e-9 / h)`
+- 如果用户未指定，默认使用仿真参数中的 T1（如果存在）
+
+**解决方案：**
+1. 修改 `phase_reconstruct` 工具参数 schema，添加可选的 `delay_ns` 参数
+2. 前端 ChatPanel 或 ParameterPanel 支持输入延迟时间
+3. 计算逻辑：
+   ```python
+   delay_ns = params.get("delay_ns")  # 用户指定的延迟（ns）
+   if delay_ns is not None:
+       n_delay = int(np.floor(delay_ns * 1e-9 / h))
+   else:
+       # 默认使用仿真参数中的 T1
+       n_delay = int(np.floor(T1 / h))
+   ```
+
+**影响范围：**
+- `backend/skills/phase_space.py`
+- `backend/mcp/schema.py` (工具 schema)
+- `frontend/src/components/ChatPanel.tsx` 或前端参数面板
+
+---
+
 ## 🎉 里程碑
 
 ### Milestone 1: 框架搭建完成 ✅
@@ -707,6 +752,6 @@ D:\Project\ChaosSimulation\ChaosTools\backend\compute_engine\dde_solver.py:98: R
 
 ---
 
-*日志更新: 2026-04-12*
+*日志更新: 2026-04-13*
 *格式: 时间线 + 任务清单 + 测试结果 + 关键决策*
-*最后更新: Phase 4 前端开发完成*
+*最后更新: 记录相空间延迟参数灵活性 bug*
